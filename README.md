@@ -1,4 +1,4 @@
-# LifeTailor — Cloud-Based Tailoring Operations Platform
+# LifeTailor - Cloud Based Tailoring Operations Platform
 
 **Real-world small-business workflow software** • JavaScript • Firebase • Firestore • Responsive PWA
 
