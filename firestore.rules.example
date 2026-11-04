@@ -1,0 +1,10 @@
+// SAFE STARTING TEMPLATE: no client may access private customer/order data.
+// Do NOT deploy this to an existing production project: it will block the app.
+// Design and test owner-specific Firebase Authentication + authorization rules
+// before accepting real customer data.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} { allow read, write: if false; }
+  }
+}
