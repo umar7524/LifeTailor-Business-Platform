@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Tailors & Fabrics</title>
+<link rel="icon" href="assets/logo-header.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="theme-color" content="#2c3e50">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Caveat:wght@600&family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js">
+<link rel="modulepreload" href="js/firebase.js">
+<link rel="modulepreload" href="js/firebase-config.js">
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="splash-overlay" id="splashOverlay">
+    <div class="brand-mark splash-mark">
+      <img class="brand-icon" src="assets/logo-splash.png" style="width:110px; height:auto;" alt="Life Tailors logo">
+      <div class="brand-text"><span class="brand-script">Life Tailors </span><span class="brand-bold">&amp; FABRICS</span></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="home" onclick="showScreen('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+      Home
+    </button>
+    <button class="nav-btn" data-screen="neworder" onclick="openNewOrder()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+      New Order
+    </button>
+    <button class="nav-btn" data-screen="customers" onclick="showScreen('customers')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      Customer
+    </button>
+    <button class="nav-btn" data-screen="catalog" onclick="showScreen('catalog')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l3 4h4l-3 4 2 5-6-3-6 3 2-5-3-4h4z"/></svg>
+      Design
+    </button>
+  </nav>
+
+  <div class="main-col">
+    <header class="app-header">
+      <div class="brand-mark header-mark">
+        <img class="brand-icon" src="assets/logo-header.png" style="width:58px; height:auto;" alt="Life Tailors logo">
+        <div class="brand-text"><span class="brand-script">Life Tailors </span><span class="brand-bold">&amp; FABRICS</span></div>
+      </div>
+    </header>
+
+    <main class="screen-area">
+
+      <section id="screen-home" class="screen">
+        <div class="stats-row">
+          <div class="stat-card"><span class="stat-num" id="customerCount">–</span><span class="stat-label">Customer</span></div>
+          <div class="stat-card"><span class="stat-num" id="pendingCount">–</span><span class="stat-label">Pending</span></div>
+          <div class="stat-card"><span class="stat-num" id="todayCount">–</span><span class="stat-label">Aaj Wapis</span></div>
+        </div>
+        <button class="cta-btn" onclick="openNewOrder()">+ New Order Banayen</button>
+
+        <h2 class="section-title" id="todayHeading">Aaj Wapis Milna Hai</h2>
+        <ul class="order-list" id="todayList"></ul>
+
+        <h2 class="section-title" id="tomorrowHeading">Kal Wapis Milna Hai</h2>
+        <ul class="order-list muted-list" id="tomorrowList"></ul>
+
+        <button type="button" class="link-btn" onclick="toggleFutureDropdown()" style="display:flex; align-items:center; gap:5px;">
+          Agle Dinon Ka Schedule
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="search-suggestions hidden" id="futureDaysList"></div>
+        <div id="futureDaySection" style="display:none; margin-top:10px;">
+          <p class="section-title" id="futureDayTitle" style="margin-top:0;"></p>
+          <div id="futureDayList"></div>
+        </div>
+      </section>
+
+      <section id="screen-neworder" class="screen hidden">
+        <div class="step-progress">
+          <div class="step-dot" id="dot1"></div>
+          <div class="step-dot" id="dot2"></div>
+          <div class="step-dot" id="dot3"></div>
+        </div>
+
+        <div class="order-step" id="step1">
+          <h2 class="section-title first">Customer</h2>
+          <div class="chip-group" id="customerTypeGroup">
+            <button type="button" class="chip" onclick="chooseCustomerType('new', this)">New Customer</button>
+            <button type="button" class="chip" onclick="chooseCustomerType('existing', this)">Old Customer</button>
+          </div>
+
+          <div id="newCustomerFields" style="display:none;">
+            <label>Customer Ka Naam</label>
+            <input type="text" id="custName" placeholder="Naam likhen">
+            <label>Mobile Number</label>
+            <input type="tel" id="custPhone" placeholder="03xx-xxxxxxx">
+          </div>
+
+          <div id="existingCustomerFields" style="display:none;">
+            <label>Naam Ya Number Likhen</label>
+            <input type="text" id="customerSearch" oninput="searchCustomers()" placeholder="Search karen">
+            <div class="search-suggestions hidden" id="searchSuggestions"></div>
+            <div id="selectedCustomerConfirm" style="display:none; margin-top:10px;">
+              <div class="suggestion-row" style="cursor:default;">
+                <span id="selectedCustomerLabel"></span>
+                <button type="button" class="link-btn" style="padding:0;" onclick="changeSelectedCustomer()">Badlein</button>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-title">Kya Silwana Hai</h2>
+          <div class="chip-group" id="productGroup">
+            <button type="button" class="chip" data-value="Shalwar Kameez" onclick="toggleProduct('Shalwar Kameez', this)">Shalwar Kameez</button>
+            <button type="button" class="chip" data-value="Waistcoat" onclick="toggleProduct('Waistcoat', this)">Waistcoat</button>
+          </div>
+
+          <p class="error-text" id="step1Error"></p>
+          <button type="button" class="cta-btn" style="margin-top:14px" onclick="proceedToStep2()">Agay Barhiye</button>
+        </div>
+
+        <div class="order-step hidden" id="step2">
+          <button type="button" class="link-btn" style="margin-top:0; margin-bottom:6px;" onclick="goToStep(1)">&#9664; Peeche</button>
+          <div id="measurementFieldsContainer"></div>
+          <h2 class="section-title">Design Options</h2>
+          <div class="chip-group" id="designGroup"></div>
+          <button type="button" class="cta-btn" style="margin-top:14px" onclick="goToStep(3)">Agay Barhiye</button>
+        </div>
+
+        <div class="order-step hidden" id="step3">
+          <button type="button" class="link-btn" style="margin-top:0; margin-bottom:6px;" onclick="goToStep(2)">&#9664; Peeche</button>
+
+          <label>Customer Ki Tasveer (Agar Apne Phone Mein Design Laya Hai)</label>
+          <input type="file" id="designPhotoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+          <button type="button" class="cta-btn ghost" onclick="document.getElementById('designPhotoInput').click()">Tasveer Lagayen</button>
+          <p class="hint-text">Camera se khenchein ya WhatsApp se aayi tasveer gallery se chunen</p>
+          <div id="photoPreviewWrap" style="margin-top:6px; display:none;">
+            <img id="photoPreviewImg" style="max-width:100%; border-radius:8px; display:block;">
+            <button type="button" class="link-btn" onclick="removePhoto()">Hata Den</button>
+          </div>
+
+          <label>Koi Aur Baat (Optional)</label>
+          <textarea id="designNote" placeholder="Jaise: chhota jaib, side pocket wagera"></textarea>
+
+          <div class="measure-grid">
+            <div><label>Quantity</label><input type="number" id="qty" value="1"></div>
+            <div><label>Price (Rs)</label><input type="number" id="price"></div>
+          </div>
+
+          <label>Wapis Ki Tareekh</label>
+          <input type="date" id="returnDate">
+
+          <p class="error-text" id="formError"></p>
+          <button type="button" class="cta-btn" id="createCardBtn" style="margin-top:14px" onclick="createCard()">Card Banayen</button>
+        </div>
+      </section>
+
+      <section id="screen-card" class="screen hidden">
+        <div class="ticket">
+          <div class="ticket-hole"></div>
+          <p class="ticket-shop">Life Tailors &amp; Fabrics</p>
+          <p class="ticket-address">Business address withheld in public demo</p>
+          <p class="ticket-contact">Contact details withheld</p>
+          <p class="ticket-contact">Contact details withheld</p>
+          <p class="ticket-order-no" id="ticketOrderNo">Order #01</p>
+          <div class="ticket-divider"></div>
+          <p class="ticket-name" id="ticketName">—</p>
+          <p class="ticket-phone" id="ticketPhone">—</p>
+          <p class="ticket-product" id="ticketProduct">—</p>
+          <div class="ticket-row">
+            <div><span class="t-label">Quantity</span><span class="t-value" id="ticketQty">1</span></div>
+            <div><span class="t-label">Price</span><span class="t-value" id="ticketPrice">Rs 0</span></div>
+          </div>
+          <div class="ticket-divider"></div>
+          <span class="t-label">Design</span>
+          <p class="ticket-design" id="ticketDesign">—</p>
+          <img id="ticketPhoto" style="display:none; max-width:100%; border-radius:6px; margin-top:10px;">
+          <div class="ticket-divider"></div>
+          <span class="t-label">Wapis Ki Tareekh</span>
+          <p class="ticket-date" id="ticketDate">—</p>
+          <div class="tag-callout">
+            <div class="tag-label">Fabric Ka Tukda Is Card Par Laga Den</div>
+          </div>
+          <p class="ticket-footer-note">اپنا آرڈر تین ماہ سے پہلے لے جائیں، اس کے بعد دکاندار کی ذمہ داری نہ ہوگی، شکریہ</p>
+        </div>
+        <p class="error-text" id="cardError"></p>
+        <div class="card-actions" id="cardActionsNew" style="flex-direction:column; gap:8px;">
+          <button class="cta-btn" id="saveCardBtn" onclick="saveCurrentCard()">Save</button>
+          <button class="cta-btn ghost" onclick="printBillCard()">Print Card</button>
+          <button class="cta-btn ghost" onclick="printMeasurementSlip()">Print Naap</button>
+          <div style="display:flex; gap:10px;">
+            <button class="cta-btn ghost" style="flex:1;" onclick="showScreen('home')">Home</button>
+            <button class="cta-btn ghost" style="flex:1;" onclick="openNewOrder()">New Order</button>
+          </div>
+        </div>
+        <div class="card-actions" id="cardActionsView" style="display:none;">
+          <button class="cta-btn ghost" style="flex:1;" onclick="showScreen('customers')">Wapis Customer List</button>
+        </div>
+      </section>
+
+      <div id="printMeasurements" class="print-only"></div>
+
+      <section id="screen-customers" class="screen hidden">
+        <div class="search-sticky">
+          <input type="text" id="custSearch" placeholder="Naam ya number likhen" oninput="filterCustomers()">
+        </div>
+        <ul class="customer-list" id="customerList" style="margin-top:4px"></ul>
+      </section>
+
+      <section id="screen-catalog" class="screen hidden">
+        <h2 class="section-title first">Design Options</h2>
+        <div id="catalogList"></div>
+      </section>
+
+      <section id="screen-editmeasurements" class="screen hidden">
+        <button type="button" class="link-btn" style="margin-top:0; margin-bottom:6px;" onclick="showScreen('customers')">&#9664; Peeche</button>
+        <h2 class="section-title first" id="editMeasureCustName">Naap Edit Karen</h2>
+        <div id="editMeasurementFieldsContainer"></div>
+        <h2 class="section-title">Design Options</h2>
+        <div class="chip-group" id="editDesignGroup"></div>
+        <div id="editWaistcoatOptionsGroup" class="chip-group" style="margin-top:12px;"></div>
+        <div id="editWaistcoatNoteWrap" style="display:none;">
+          <label>Waistcoat Ke Liye Koi Aur Baat</label>
+          <textarea id="editWaistcoatNote" placeholder="Waistcoat ke hisab se koi baat likhen"></textarea>
+        </div>
+        <label>Koi Aur Baat (Optional)</label>
+        <textarea id="editNote" placeholder="Jaise: chhota jaib, side pocket wagera"></textarea>
+        <p class="error-text" id="editMeasureError"></p>
+        <button type="button" class="cta-btn" id="saveMeasureBtn" style="margin-top:14px" onclick="saveEditedMeasurements()">Naap Save Karen</button>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">Business address withheld in public demo</footer>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
